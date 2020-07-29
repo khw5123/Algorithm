@@ -39,29 +39,43 @@ def MCMF(source, sink):
         answer[1] += flowRate
     return answer
 
-MAX_N, MAX_M = 100, 100 # 최대 사람의 수, 최대 서점의 수
-n, m = map(int, input().split()) # 사람의 수, 서점의 수
-v = MAX_N + MAX_M + 2 # 정점의 수 (최대 사람 수 + 최대 서점 수 + source + sink)
-capacity = [[0]*v for _ in range(v)] # 용량
-flow = [[0]*v for _ in range(v)] # 유량
-cost = [[0]*v for _ in range(v)] # 비용
-adj = [[] for _ in range(v)] # 연결된 정점 (source + 서점 + 사람 + sink)
-capacity_n = list(map(int, input().split())) # 사람이 사려고 하는 책의 개수
-capacity_m = list(map(int, input().split())) # 서점이 가지고 있는 책의 개수
-cost_n_m = [list(map(int, input().split())) for _ in range(m)] # 배송비
-for _m in range(1, m+1): # source와 서점 매칭
-    adj[0].append(_m)
-    adj[_m].append(0)
-    capacity[0][_m] = capacity_m[_m-1]
-for _n in range(MAX_M+1, MAX_M+n+1): # 사람과 sink 매칭
-    adj[_n].append(v-1)
-    adj[v-1].append(_n)
-    capacity[_n][v-1] = capacity_n[_n-(MAX_M+1)]
-for _m in range(1, m+1): # 서점과 사람 매칭
-    for _n in range(MAX_M+1, MAX_M+n+1):
-        adj[_m].append(_n)
-        adj[_n].append(_m)
-        capacity[_m][_n] = INF
-        cost[_m][_n] = cost_n_m[_m-1][_n-(MAX_M+1)] # 순방향 간선의 비용
-        cost[_n][_m] = -cost_n_m[_m-1][_n-(MAX_M+1)] # 역방향 간선의 비용
-print(MCMF(0, v-1)[0])
+while True:
+    n, a, b = map(int, input().split())
+    if n + a + b == 0:
+        break
+    m = 2
+    v = n + m + 2 # 정점의 수
+    capacity = [[0]*v for _ in range(v)] # 용량
+    flow = [[0]*v for _ in range(v)] # 유량
+    cost = [[0]*v for _ in range(v)] # 비용
+    adj = [[] for _ in range(v)] # 연결된 정점 (source + 팀 자리 + 풍선 방 + sink)
+    _n = 1
+    for _ in range(n):
+        k, a_cost, b_cost = map(int, input().split())
+        # source와 팀 자리 매칭
+        adj[0].append(_n)
+        adj[_n].append(0)
+        capacity[0][_n] = k
+        # 팀 자리와 풍선 방(A) 매칭
+        adj[_n].append(n+1)
+        adj[n+1].append(_n)
+        capacity[_n][n+1] = INF
+        cost[_n][n+1] = a_cost
+        cost[n+1][_n] = -a_cost
+        # 팀 자리와 풍선 방(B) 매칭
+        adj[_n].append(n+2)
+        adj[n+2].append(_n)
+        capacity[_n][n+2] = INF
+        cost[_n][n+2] = b_cost
+        cost[n+2][_n] = -b_cost
+        _n += 1
+        # 풍선 방(A)과 sink 매칭
+        adj[n+1].append(v-1)
+        adj[v-1].append(n+1)
+        capacity[n+1][v-1] = a
+        # 풍선 방(B)과 sink 매칭
+        adj[n+2].append(v-1)
+        adj[v-1].append(n+2)
+        capacity[n+2][v-1] = b
+    min_cost, max_flow = MCMF(0, v-1)
+    print(min_cost)

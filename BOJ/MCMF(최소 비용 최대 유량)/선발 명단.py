@@ -11,7 +11,7 @@ def MCMF(source, sink):
         while queue:
             present = queue[0] # 현재 정점
             del queue[0]
-            inQueue[present] = False
+            inQueue[present] = 0
             for _next in adj[present]:
                 # 최소 비용이고, 최대 유량일 경우
                 if dist[_next] > dist[present] + cost[present][_next] and capacity[present][_next] - flow[present][_next] > 0:

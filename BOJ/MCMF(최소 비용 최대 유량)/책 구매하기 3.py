@@ -48,6 +48,7 @@ cost = [[0]*v for _ in range(v)] # 비용
 adj = [[] for _ in range(v)] # 연결된 정점 (source + 서점 + 사람 + sink)
 capacity_n = list(map(int, input().split())) # 사람이 사려고 하는 책의 개수
 capacity_m = list(map(int, input().split())) # 서점이 가지고 있는 책의 개수
+capacity_n_m = [list(map(int, input().split())) for _ in range(m)] # 서점이 최대로 팔 수 있는 책의 개수
 cost_n_m = [list(map(int, input().split())) for _ in range(m)] # 배송비
 for _m in range(1, m+1): # source와 서점 매칭
     adj[0].append(_m)
@@ -61,7 +62,9 @@ for _m in range(1, m+1): # 서점과 사람 매칭
     for _n in range(MAX_M+1, MAX_M+n+1):
         adj[_m].append(_n)
         adj[_n].append(_m)
-        capacity[_m][_n] = INF
+        capacity[_m][_n] = capacity_n_m[_m-1][_n-(MAX_M+1)]
         cost[_m][_n] = cost_n_m[_m-1][_n-(MAX_M+1)] # 순방향 간선의 비용
         cost[_n][_m] = -cost_n_m[_m-1][_n-(MAX_M+1)] # 역방향 간선의 비용
-print(MCMF(0, v-1)[0])
+min_cost, max_flow = MCMF(0, v-1)
+print(max_flow)
+print(min_cost)
